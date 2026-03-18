@@ -6,7 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors"
-import mongoose from "mongoose";
+import { connectDB } from "./config/db";
  
 dotenv.config()
 
@@ -47,17 +47,11 @@ app.use((
 )
 
 //connect to db
-const connectDB = async () => {
-    try {
-        const conn = await mongoose.connect(process.env.MONGO_URL as string)
-        console.log("MongoDB Connected")
-    } catch (error) {
-        console.error(`Error: ${(error as Error).message}`);
-        process.exit(1) //exit process with failure
-    }
-}
 
-app.listen(PORT, () => {
-    connectDB()
-    console.log(`Server is running on port ${PORT}`)
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        connectDB()
+        console.log(`Server is running on port ${PORT}`)
+    })
+
 })
