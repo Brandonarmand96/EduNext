@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "nodemon --exec bun run index.ts",
-    "start": "bun --watch index.ts"
+    "dev": "nodemon --exec bun run src/server.ts",
+    "start": "bun --watch src/server.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
