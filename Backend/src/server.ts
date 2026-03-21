@@ -7,6 +7,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors"
 import { connectDB } from "./config/db";
+import userRoutes from "./routes/userRoutes";
  
 dotenv.config()
 
@@ -37,6 +38,9 @@ app.use(cors({
 app.get("/", (req: Request, res: Response) => {
     res.status(200).json({status:"OK", message: "Server is healthy"})
 })
+
+//import user routes
+app.use("/api/users", userRoutes)
 
 //global error handler middleware
 app.use((
