@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import { password } from "bun";
 import mongoose, { Document, Schema } from "mongoose";
 export enum UserRole {
     ADMIN = "admin",
@@ -8,7 +7,7 @@ export enum UserRole {
     PARENT = "parent"
 }
 
-export type UserRoles = "admins" | "teacher" | "student" | "parent";
+export type UserRoles = "admin" | "teacher" | "student" | "parent";
 
 export interface IUser extends Document {
     name: string;
@@ -23,12 +22,12 @@ export interface IUser extends Document {
 
 const userSchema: Schema<IUser> = new Schema({
     name: {type: String, required: true},
-    email: {type:String, required: true},
+    email: {type:String, required: true, unique:true},
     password: {type: String, required: true},
     role: {type: String, enum: Object.values(UserRole), required: true, default : UserRole.STUDENT },
     isActive: {type: Boolean, default: true},
     studentClass: {type: mongoose.Schema.Types.ObjectId, ref: 'Class'},
-    teacherSubject: {type: mongoose.Schema.Types.ObjectId, ref: 'Subject'}
+    teacherSubject: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subject'}]
 }, {
     timestamps: true,
 })
@@ -39,8 +38,8 @@ userSchema.pre<IUser>("save", async function () {
     this.password = await bcrypt.hash(this.password, salt)
 })
 
-userSchema.methods.matchedPassword = async function (enterdPassword: string) {
-    return await bcrypt.compare(enterdPassword, this.password);
+userSchema.methods.matchPassword = async function (enteredPassword: string) {
+    return await bcrypt.compare(enteredPassword, this.password);
 
 }
 
