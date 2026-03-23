@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import cors from "cors"
 import { connectDB } from "./config/db";
 import userRoutes from "./routes/userRoutes";
+import logsRoutes from "./routes/activityLogRoutes";
  
 dotenv.config()
 
@@ -41,6 +42,7 @@ app.get("/", (req: Request, res: Response) => {
 
 //import user routes
 app.use("/api/users", userRoutes)
+app.use("/api/activities", logsRoutes)
 
 //global error handler middleware
 app.use((

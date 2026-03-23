@@ -1,16 +1,18 @@
 import type { Request, Response } from "express";
 import User from "../models/userModel";
+import { logActivity } from "../utils/activitiesLog";
 
 //@desc Register a new user
 //@route POST /api/users/register
 //@access Public
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, email, password, role, studentClass, teacherSubject } = req.body;
+        const { name, password, role, studentClass, teacherSubject } = req.body;
+        const email = req.body.email?.toLowerCase().trim();
 
-        // Basic validation
+        // Validate input
         if (!name || !email || !password) {
-            res.status(400).json({ message: "Please provide all required fields" });
+            res.status(400).json({ message: "All required fields must be provided" });
             return;
         }
 
@@ -22,8 +24,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
-        // Prevent privilege escalation
-        const allowedRole = role && ["teacher", "student", "parent"].includes(role)
+        // Prevent role abuse
+        const allowedRole = ["teacher", "student", "parent"].includes(role)
             ? role
             : "student";
 
@@ -37,6 +39,14 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
             teacherSubject,
         });
 
+        // Log activity (non-blocking)
+        logActivity(
+            newUser._id.toString(),
+            "REGISTER",
+            `Registered user with email: ${newUser.email}`
+        );
+
+        // Send response
         res.status(201).json({
             _id: newUser._id,
             name: newUser.name,
@@ -49,11 +59,10 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         });
 
     } catch (error) {
-        // dont send error to frontend 
         console.error(error);
 
         res.status(500).json({
-            message: "Server error",
+            message: "Server Error"
         });
     }
 };

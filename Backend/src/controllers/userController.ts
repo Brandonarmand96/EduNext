@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import User from "../models/userModel"
 import { generateToken } from "../utils/generateToken";
+import { logActivity } from "../utils/activitiesLog";
 
 
 //@desc Register a new user
@@ -26,6 +27,14 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         })
 
         if (newUser) {
+
+            //log registered user
+            logActivity(
+                newUser._id,
+                "Registered User",
+                `Registered user with email: ${newUser.email}`,
+            )
+            
             res.status(201).json({
                 _id: newUser._id,
                 name: newUser.name,
@@ -89,6 +98,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
         // Generate token
         generateToken(user._id.toString(), res);
+
+        //log logged in user
+            logActivity(
+                user._id,
+                " logged in user",
+                `User with email: ${user.email} logged in`,
+            )
 
         // Send safe user data
         res.status(200).json({
